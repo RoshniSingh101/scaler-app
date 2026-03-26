@@ -5,6 +5,8 @@ celery_app = Celery('tasks',
             broker='pyamqp://guest@rabbitmq//', 
             backend='redis://redis:6379/0') 
 
+celery_app.conf.broker_connection_retry_on_startup = True
+
 @celery_app.task(bind=True)
 def process_video_task(self, video_id):
     print(f"Starting heavy work on {video_id}...")
