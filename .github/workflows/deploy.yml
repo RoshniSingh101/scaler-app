@@ -4,8 +4,7 @@ on:
     branches: [ main ]
 
 jobs:
-  # STEP 1: The "Grammar Check"
-  # Ensures your Python code doesn't have syntax errors or missing imports.
+  # ensures code in Python does not contain syntax errors or missing import statements
   validate:
     runs-on: ubuntu-latest
     steps:
@@ -24,8 +23,7 @@ jobs:
           # Fails the build if there are critical Python errors
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-  # STEP 2: The "Recipe Check"
-  # Ensures your Dockerfiles and docker-compose.yml are formatted correctly.
+  # ensures Dockerfiles and docker-compose.yml formatted correctly
   build-check:
     needs: validate
     runs-on: ubuntu-latest
