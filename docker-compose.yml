@@ -1,0 +1,42 @@
+services:
+  redis:
+    image: redis:alpine
+  
+  memcached:
+    image: memcached:alpine
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15673:15672" # RabbitMQ Dashboard
+
+  app-clone-1:
+    build: ./app
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+
+  app-clone-2:
+    build: ./app
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+
+  worker:
+    build: ./app
+    depends_on: [rabbitmq]
+    command: celery -A tasks worker --loglevel=info
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      app-clone-1:
+        condition: service_started
+      app-clone-2:
+        condition: service_started
