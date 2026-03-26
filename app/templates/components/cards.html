@@ -1,0 +1,12 @@
+{% macro cluster_card(title, icon, color_class, footer) %}
+<div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+    <div class="flex items-center mb-4 {{ color_class }}">
+        <i class="fas {{ icon }} text-2xl mr-3"></i>
+        <h2 class="text-xl font-bold">{{ title }}</h2>
+    </div>
+    <div class="card-content">
+        {{ caller() }}
+    </div>
+    <p class="mt-4 text-xs text-slate-500 italic">{{ footer }}</p>
+</div>
+{% endmacro %}

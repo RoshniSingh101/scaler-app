@@ -1,38 +1,89 @@
-name: Local CI Pipeline
+# name: Local CI Pipeline
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   # ensures code in Python does not contain syntax errors or missing import statements
+#   validate:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+      
+#       - name: Set up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.12'
+          
+#       - name: Install Linting Tools
+#         run: pip install flake8
+        
+#       - name: Lint with flake8
+#         run: |
+#           # Fails the build if there are critical Python errors
+#           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+#   # ensures Dockerfiles and docker-compose.yml formatted correctly
+#   build-check:
+#     needs: validate
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Verify Docker Compose Syntax
+#         run: docker compose config
+
+#       - name: Test Docker Build
+#         run: docker compose build
+
+name: Cluster CI/CD Pipeline
+
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  # ensures code in Python does not contain syntax errors or missing import statements
+  # static analysis (Python & linting)
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          
-      - name: Install Linting Tools
-        run: pip install flake8
-        
-      - name: Lint with flake8
+      - name: Install dependencies
         run: |
-          # Fails the build if there are critical Python errors
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          pip install flake8
+          if [ -f app/requirements.txt ]; then pip install -r app/requirements.txt; fi
+      - name: Lint with flake8
+        # ignore 'app' module errors because use PYTHONPATH in Docker
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-  # ensures Dockerfiles and docker-compose.yml formatted correctly
-  build-check:
+  # integration testing (cluster check)
+  build-and-test:
     needs: validate
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Verify Docker Compose Syntax
-        run: docker compose config
-
-      - name: Test Docker Build
+      - name: Build the Cluster
         run: docker compose build
+
+      - name: Start Services
+        run: docker compose up -d
+
+      - name: Wait for Services (Health Check)
+        run: |
+          timeout 60s bash -c 'until curl -s localhost:8080 | grep "System Architecture"; do sleep 5; done'
+        # confirm Nginx, FastAPI, and Jinja2 are all working together.
+
+      - name: Check Container Logs on Failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Shutdown
+        run: docker compose down

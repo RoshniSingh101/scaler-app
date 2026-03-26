@@ -12,17 +12,23 @@ services:
 
   app-clone-1: # clone1
     build: ./app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     environment:
       - REDIS_HOST=redis
+      - RABBITMQ_URL=pyamqp://guest@rabbitmq//
     depends_on:
       - redis
+      - rabbitmq
 
   app-clone-2: # clone2
     build: ./app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     environment:
       - REDIS_HOST=redis
+      - RABBITMQ_URL=pyamqp://guest@rabbitmq//
     depends_on:
       - redis
+      - rabbitmq
 
   worker: # ensured worker build under app, not worker folder
     build: ./app
