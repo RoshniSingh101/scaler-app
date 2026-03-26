@@ -10,21 +10,21 @@ services:
     ports:
       - "15673:15672" # RabbitMQ Dashboard
 
-  app-clone-1:
+  app-clone-1: # clone1
     build: ./app
     environment:
       - REDIS_HOST=redis
     depends_on:
       - redis
 
-  app-clone-2:
+  app-clone-2: # clone2
     build: ./app
     environment:
       - REDIS_HOST=redis
     depends_on:
       - redis
 
-  worker:
+  worker: # ensured worker build under app, not worker folder
     build: ./app
     depends_on: [rabbitmq]
     command: celery -A tasks worker --loglevel=info
