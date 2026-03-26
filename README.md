@@ -1,30 +1,29 @@
-# 🚀 Scalable Video Processing Cluster
+# Scalable Video Processing Cluster
 
-A high-availability, distributed system designed to handle heavy background tasks using a Producer-Consumer architecture. This project demonstrates how to scale a web application horizontally using Nginx, FastAPI, RabbitMQ, and Celery.
+Distributed system designed to handle background tasks while scaling horizontally using Nginx, FastAPI, RabbitMQ, and Celery.
 
 
 
-## 🏗️ The Architecture
-This stack is built to solve the "Slow Request" problem. Instead of making a user wait for a heavy task to finish, we offload the work to background workers.
+## The Architecture
 
-* **Load Balancer:** Nginx (Distributes traffic between App Clones).
-* **Web Layer:** FastAPI (Running multiple replicated instances).
-* **Task Broker:** RabbitMQ (The "Post Office" for background jobs).
-* **Background Worker:** Celery (The "Factory" that does the heavy lifting).
-* **Result Backend:** Redis (Stores the "True/False" results and hit counters).
+* **Load Balancer:** Nginx (distributes traffic between app clones one and two)
+* **Web Layer:** FastAPI (running replicated instances)
+* **Task Broker:** RabbitMQ (asynchronously runs background jobs)
+* **Background Worker:** Celery (processes video tasks).
+* **Result Backend:** Redis (stores "True/False" results if async background tasks were successful and cache hit counters)
 * **Caching Layer:** Memcached (High-speed volatile data storage).
 
 ---
 
-## 🛠️ Features
-* **Horizontal Scaling:** Nginx balances requests across `app-clone-1` and `app-clone-2`.
-* **Async Task Polling:** The UI triggers a task, receives a `task_id`, and polls the server until the worker returns a result.
-* **Fault Tolerance:** Designed to stay online even if one app instance or the worker restarts.
-* **Real-time Feedback:** The "Fancy UI" displays which specific container handled the request via the `server_id`.
+## Features
+* **Horizontal Scaling:** Nginx balances requests across `app-clone-1` and `app-clone-2`
+* **Async Task Polling:** UI triggers a task, receives a `task_id`, and polls the server until the worker returns a result
+* **Fault Tolerance:** Designed to stay online even if one app clone instance or the worker restarts
+* **Real-time Feedback:** Displays which specific container handled the request via the `server_id`
 
 ---
 
-## 🚦 Getting Started
+## Getting Started
 
 ### Prerequisites
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
@@ -32,7 +31,7 @@ This stack is built to solve the "Slow Request" problem. Instead of making a use
 ### Installation & Launch
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/scaler-app.git](https://github.com/your-username/scaler-app.git)
+    git clone [https://github.com/your-username/scaler-app.git]
     cd scaler-app
     ```
 
@@ -46,18 +45,27 @@ This stack is built to solve the "Slow Request" problem. Instead of making a use
 
 ---
 
-## 🚦 API Reference
+## API Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/` | Renders the Dashboard with Hit Counter and Server ID. |
-| `POST` | `/process-video` | Submits a task to RabbitMQ. Returns a `task_id`. |
-| `GET` | `/task-status/{id}`| Checks Redis to see if the worker finished the job. |
+| `GET` | `/` | Renders the Dashboard with Hit Counter and Server ID |
+| `POST` | `/process-video` | Submits a task to RabbitMQ. Returns a `task_id` |
+| `GET` | `/task-status/{id}`| Checks Redis to see if the worker finished the job |
 
 ---
 
-## 📈 Scaling the System
+## Scaling the System
 To see Nginx in action, you can scale your application clones dynamically:
 ```bash
 # Scale to 5 instances of the first app clone
 docker-compose up --scale app-clone-1=5 -d
+```
+---
+
+## After Spinning Up the Cluster
+You may tear it down and then spin it back up if you would like to make any changes on your local machine
+```bash
+docker-compose down
+```
+---
