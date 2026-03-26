@@ -62,7 +62,7 @@
             const data = await response.json();
             const taskId = data.task_id;
 
-            // being polling for the result
+            // poll for the result
             const checkInterval = setInterval(async () => {
                 const res = await fetch(`/task-status/${taskId}`);
                 const taskData = await res.json();
