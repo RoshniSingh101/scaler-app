@@ -69,3 +69,6 @@ You may tear it down and then spin it back up if you would like to make any chan
 docker-compose down
 ```
 ---
+## Demo
+<img width="1724" height="664" alt="Screenshot 2026-03-26 at 9 26 50 AM" src="https://github.com/user-attachments/assets/92a0544e-2090-4dcb-9034-0a30d29368b5" />
+
